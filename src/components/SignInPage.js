@@ -3,6 +3,8 @@ import React, { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { auth } from '../firebase/firebaseConfig';
 import { toast } from 'react-toastify';
+import { addDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+import database from '../firebase/firebaseConfig'
 
 const SignInPage = ({ active }) => {
     let [name, setName] = useState();
@@ -13,29 +15,52 @@ const SignInPage = ({ active }) => {
 
     const signInFunc = (e) => {
         e.preventDefault();
-        signInWithEmailAndPassword(auth, email, password)
-        .then((userCredentials) => {
-            toast.success(`Successfully sign in!`);
-            navigate(`/`)
-        })
+        if (email && password) {
+            signInWithEmailAndPassword(auth, email, password)
+                .then(async (userCredentials) => {
+                    await getDoc(doc(database, `users/${userCredentials.user.uid}`))
+                        .then((snapshot) => {
+                            if (snapshot.exists()) {
+                                toast.success(`Successfully signed in, welcome back ${userCredentials.user.displayName}!`);
+                            }
+                            else {
+                                toast.success(`Successfully signed in, welcome ${userCredentials.user.displayName}!`);
+                            }
+                        })
+                    setDoc(doc(database, `users/${userCredentials.user.uid}`), { name: userCredentials.user.displayName, email: userCredentials.user.email, lastAccess: new Date().getTime() });
+                    navigate(`/`)
+                })
+        }
+        else {
+            toast.error("Please fill the empty inputs!");
+        }
     }
-    const registerFunc = (e) => {
+    const registerFunc = async (e) => {
         e.preventDefault();
-        createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredentials) => {
-            updateProfile(userCredentials.user, {
-                displayName: name
+        await createUserWithEmailAndPassword(auth, email, password)
+            .then(async (userCredentials) => {
+                await updateProfile(userCredentials.user, {
+                    displayName: name
+                })
+                await getDoc(doc(database, `users/${userCredentials.user.uid}`))
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            toast.success(`Successfully signed up, welcome back ${userCredentials.user.displayName}!`);
+                        }
+                        else {
+                            toast.success(`Successfully signed up, welcome ${userCredentials.user.displayName}!`);
+                        }
+                    })
+                setDoc(doc(database, `users/${userCredentials.user.uid}`), { name: userCredentials.user.displayName, email: userCredentials.user.email, lastAccess: new Date().getTime() });
+                navigate(`/`)
             })
-            toast.success('Successfully sign up!');
-            navigate(`/sign-in`);
-        })
     }
     const forgotFunc = (e) => {
         e.preventDefault();
         sendPasswordResetEmail(auth, email)
-        .then(() => {
-            toast.info(`Successfully send reset password email to ${email} account!`);
-        })
+            .then(() => {
+                toast.info(`Successfully send reset password email to ${email} account!`);
+            })
     }
     return (
         <div className='container d-flex justify-content-center my-3'>
@@ -52,7 +77,7 @@ const SignInPage = ({ active }) => {
                             {
                                 active === "register" ?
                                     <div className="form-group mb-3">
-                                        <input type="text" className="form-control" onChange={(e)=>{
+                                        <input type="text" className="form-control" onChange={(e) => {
                                             setName(e.target.value);
                                         }} placeholder="Full name" />
                                     </div>
@@ -65,7 +90,7 @@ const SignInPage = ({ active }) => {
                                 }} id="exampleInputEmail1" placeholder="Email" />
                             </div>
                             <div className="form-group mb-4">
-                                <input type="password" className="form-control" onChange={(e)=>{
+                                <input type="password" className="form-control" onChange={(e) => {
                                     setPassword(e.target.value);
                                 }} id="exampleInputPassword1" placeholder="Password" />
                             </div>

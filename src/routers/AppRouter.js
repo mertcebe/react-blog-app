@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Link, NavLink, Route, Routes } from 'react-router-dom'
 import '../style/style.scss'
 import { signOut } from 'firebase/auth'
@@ -13,13 +13,13 @@ import AboutPage from '../components/AboutPage'
 import PublicRoute from '../components/PublicRoute'
 import SignInPage from '../components/SignInPage'
 import profileImg from '../images/blogAppprofileImg.png'
+import ProfilePage from '../components/ProfilePage'
 
 const Navbar = () => {
     let { isAuthorized } = useAuthorized();
-    console.log(auth.currentUser)
     return (
         <div>
-            <nav className="navbar navbar-expand-lg navbar-light bg-light px-4">
+            <nav className="navbar navbar-expand-md navbar-light bg-light px-4">
                 <Link to={`/`} className="navbar-brand">Blog App</Link>
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul className="navbar-nav mr-auto w-100 d-flex justify-content-between px-3">
@@ -56,7 +56,6 @@ const Navbar = () => {
 
 const AppRouter = () => {
     let { isAuthorized } = useAuthorized();
-    console.log(auth.currentUser)
     return (
         <>
             <BrowserRouter>
@@ -66,6 +65,7 @@ const AppRouter = () => {
                         <Route path='/' element={<HomePage />} />
                         <Route path='/create' element={<CreatePage />} />
                         <Route path='/about' element={<AboutPage />} />
+                        <Route path='/profile' element={<ProfilePage />} />
                     </Route>
 
                     <Route element={<PublicRoute isAuthorized={isAuthorized}/>}>

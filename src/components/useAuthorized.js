@@ -12,6 +12,5 @@ export const useAuthorized = () => {
             setIsAuthorized(false);
         }
     })
-    console.log(isAuthorized)
     return {isAuthorized};
 }
