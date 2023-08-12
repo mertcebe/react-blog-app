@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Link, NavLink, Route, Routes } from 'react-router-dom'
 import '../style/style.scss'
 import { signOut } from 'firebase/auth'
-import { auth } from '../firebase/firebaseConfig'
 import { useAuthorized } from '../components/useAuthorized'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,6 +13,8 @@ import PublicRoute from '../components/PublicRoute'
 import SignInPage from '../components/SignInPage'
 import profileImg from '../images/blogAppprofileImg.png'
 import ProfilePage from '../components/ProfilePage'
+import { auth } from '../firebase/firebaseConfig'
+import DetailsPage from '../components/DetailsPage'
 
 const Navbar = () => {
     let { isAuthorized } = useAuthorized();
@@ -37,7 +38,7 @@ const Navbar = () => {
                         <li className="nav-item">
                             {isAuthorized ?
                                 <div className='d-flex align-items-center'>
-                                    <NavLink to={`/profile`} style={{textDecoration: "none", marginRight: "10px"}}>
+                                    <NavLink to={`/profile/${auth.currentUser.uid}`} style={{textDecoration: "none", marginRight: "10px"}}>
                                         <img src={profileImg} alt="..." style={{width: "25px", height: "25px", borderRadius: "50%", marginRight: "5px"}}/>
                                         <small style={{color: "black", display: "inline-block", position: "relative", top: "2px"}}>{auth.currentUser.displayName}</small>
                                     </NavLink>
@@ -63,9 +64,10 @@ const AppRouter = () => {
                 <Routes>
                     <Route element={<PrivateRoute isAuthorized={isAuthorized}/>}>
                         <Route path='/' element={<HomePage />} />
+                        <Route path='/details/:id' element={<DetailsPage />} />
                         <Route path='/create' element={<CreatePage />} />
                         <Route path='/about' element={<AboutPage />} />
-                        <Route path='/profile' element={<ProfilePage />} />
+                        <Route path='/profile/:uid' element={<ProfilePage />} />
                     </Route>
 
                     <Route element={<PublicRoute isAuthorized={isAuthorized}/>}>

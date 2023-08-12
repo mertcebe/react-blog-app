@@ -2,14 +2,16 @@ import React, { useReducer, useState } from 'react'
 import { reducer, setValues } from '../actions/CreateAction';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { auth } from '../firebase/firebaseConfig';
-import { addDoc, collection, setDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 import database from '../firebase/firebaseConfig'
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router';
 import { TagsInput } from "react-tag-input-component";
+import gif from '../images/creatingGif.gif'
 
 const CreatePage = () => {
   const [selected, setSelected] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const initialState = {
     title: "",
@@ -17,25 +19,36 @@ const CreatePage = () => {
     isTrending: false,
     category: "null",
     description: "",
-    images: []
+    images: [],
+    dateAdded: "",
+    owner: "",
+    uid: ""
   };
   let [state, dispatch] = useReducer(reducer, initialState);
 
   let navigate = useNavigate();
 
   const submitFunc = (e) => {
+    setLoading(false)
     e.preventDefault();
     state.tags = selected;
     submitImageToStorage(state.images)
       .then(async (snapshot) => {
         state.images = await snapshot;
-
-        addDoc(collection(database, `allBlogs/${auth.currentUser.uid}/blogs`), state)
-          .then(() => {
-            console.log(state)
-            toast.success("Created a blog!");
-            navigate(`/`);
-          })
+        state.dateAdded = new Date().getTime();
+        state.owner = auth.currentUser.displayName;
+        state.uid = auth.currentUser.uid;
+        setTimeout(() => {
+          addDoc(collection(database, `userBlogs/${auth.currentUser.uid}/blogs`), state)
+            .then((snapshot) => {
+              setDoc(doc(database, `allBlogs/${snapshot.id}`), state)
+            })
+            .then(() => {
+              toast.success("Created a blog!");
+              setLoading(true);
+              navigate(`/`);
+            })
+        }, 3000);
       })
   }
 
@@ -68,13 +81,18 @@ const CreatePage = () => {
 
     })
   }
-
+  if (!loading) {
+    return (
+      <div className='d-flex justify-content-center align-items-center w-100' style={{ height: "90vh" }}>
+        <img src={gif} alt="" style={{ width: "20%" }} />
+      </div>
+    )
+  }
   return (
     <>
-
       <h4 className='text-center'>Create Blog</h4>
       <div className='container d-flex justify-content-center my-4'>
-        <form style={{ width: "50%" }} onSubmit={submitFunc}>
+        <form id='createForm' style={{ width: "50%" }} onSubmit={submitFunc}>
 
           <div className="form-group mb-3">
             <input type="text" className="form-control" required onChange={(e) => {
@@ -97,11 +115,11 @@ const CreatePage = () => {
           <div className='container d-flex justify-content-between my-4'>
             <small>Is it trending blog?</small>
             <div>
-              <input type="radio" name='rd1' id='radio1' defaultChecked={state.isTrending?true:false} onChange={(e) => {
+              <input type="radio" name='rd1' id='radio1' defaultChecked={state.isTrending ? true : false} onChange={(e) => {
                 setValues(dispatch, "isTrending", true);
               }} />
               <label htmlFor="radio1" style={{ marginRight: "10px" }}>yes</label>
-              <input type="radio" name='rd1' id='radio2' defaultChecked={state.isTrending?false:true} onChange={(e) => {
+              <input type="radio" name='rd1' id='radio2' defaultChecked={state.isTrending ? false : true} onChange={(e) => {
                 setValues(dispatch, "isTrending", false);
               }} />
               <label htmlFor="radio2">no</label>
