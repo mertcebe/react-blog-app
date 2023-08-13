@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { BrowserRouter, Link, NavLink, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Link, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import '../style/style.scss'
 import { signOut } from 'firebase/auth'
 import { useAuthorized } from '../components/useAuthorized'
@@ -15,6 +15,10 @@ import profileImg from '../images/blogAppprofileImg.png'
 import ProfilePage from '../components/ProfilePage'
 import { auth } from '../firebase/firebaseConfig'
 import DetailsPage from '../components/DetailsPage'
+import EditPage from '../components/EditPage'
+import TagsPage from '../components/TagsPage'
+import BlogsOrderByTags from '../components/BlogsOrderByTags'
+import TagsLayout from '../components/TagsLayout'
 
 const Navbar = () => {
     let { isAuthorized } = useAuthorized();
@@ -38,9 +42,9 @@ const Navbar = () => {
                         <li className="nav-item">
                             {isAuthorized ?
                                 <div className='d-flex align-items-center'>
-                                    <NavLink to={`/profile/${auth.currentUser.uid}`} style={{textDecoration: "none", marginRight: "10px"}}>
-                                        <img src={profileImg} alt="..." style={{width: "25px", height: "25px", borderRadius: "50%", marginRight: "5px"}}/>
-                                        <small style={{color: "black", display: "inline-block", position: "relative", top: "2px"}}>{auth.currentUser.displayName}</small>
+                                    <NavLink to={`/profile/${auth.currentUser.uid}`} style={{ textDecoration: "none", marginRight: "10px" }}>
+                                        <img src={profileImg} alt="..." style={{ width: "25px", height: "25px", borderRadius: "50%", marginRight: "5px" }} />
+                                        <small style={{ color: "black", display: "inline-block", position: "relative", top: "2px" }}>{auth.currentUser.displayName}</small>
                                     </NavLink>
                                     <button className='nav-link' onClick={() => {
                                         signOut(auth);
@@ -62,19 +66,25 @@ const AppRouter = () => {
             <BrowserRouter>
                 <Navbar />
                 <Routes>
-                    <Route element={<PrivateRoute isAuthorized={isAuthorized}/>}>
+                    <Route element={<PrivateRoute isAuthorized={isAuthorized} />}>
                         <Route path='/' element={<HomePage />} />
                         <Route path='/details/:id' element={<DetailsPage />} />
                         <Route path='/create' element={<CreatePage />} />
                         <Route path='/about' element={<AboutPage />} />
                         <Route path='/profile/:uid' element={<ProfilePage />} />
+                        <Route path='/edit/:id' element={<EditPage />} />
+                        <Route path='/tags' element={<TagsLayout />}>
+                            <Route index element={<TagsPage />} />
+                            <Route path=':tag' element={<BlogsOrderByTags />} />
+                        </Route>
                     </Route>
 
-                    <Route element={<PublicRoute isAuthorized={isAuthorized}/>}>
+                    <Route element={<PublicRoute isAuthorized={isAuthorized} />}>
                         <Route path='/sign-in' element={<SignInPage active={"signIn"} />} />
                         <Route path='/register' element={<SignInPage active={"register"} />} />
                         <Route path='/forgot-password' element={<SignInPage active={"forgot"} />} />
                     </Route>
+                    {/* <Route path='*' element={<Navigate to={`/`} />} /> */}
                 </Routes>
             </BrowserRouter>
             <ToastContainer

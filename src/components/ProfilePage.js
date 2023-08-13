@@ -6,10 +6,10 @@ import DailyBlogs from './DailyBlogs';
 import Moment from 'react-moment';
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination, Scrollbar, A11y, EffectFade, Autoplay, EffectCube, EffectCoverflow, EffectCards } from 'swiper/modules';
+import { NavLink } from 'react-router-dom';
 
 import 'swiper/css';
 import "swiper/css/effect-cards";
-import { NavLink } from 'react-router-dom';
 
 const ProfilePage = () => {
   let { uid } = useParams();

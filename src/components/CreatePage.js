@@ -2,27 +2,28 @@ import React, { useReducer, useState } from 'react'
 import { reducer, setValues } from '../actions/CreateAction';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { auth } from '../firebase/firebaseConfig';
-import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, setDoc, updateDoc } from 'firebase/firestore';
 import database from '../firebase/firebaseConfig'
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router';
 import { TagsInput } from "react-tag-input-component";
 import gif from '../images/creatingGif.gif'
 
-const CreatePage = () => {
-  const [selected, setSelected] = useState([]);
+const CreatePage = ({ editBlog, id }) => {
+  const [selected, setSelected] = useState(editBlog ? editBlog.tags : []);
   const [loading, setLoading] = useState(true);
+  const [editImg, setEditImg] = useState(false);
 
   const initialState = {
-    title: "",
-    tags: [],
-    isTrending: false,
-    category: "null",
-    description: "",
-    images: [],
-    dateAdded: "",
-    owner: "",
-    uid: ""
+    title: editBlog ? editBlog.title : "",
+    tags: editBlog ? editBlog.tags : [],
+    isTrending: editBlog ? editBlog.isTrending : false,
+    category: editBlog ? editBlog.category : "null",
+    description: editBlog ? editBlog.description : "",
+    images: editBlog ? editBlog.images : [],
+    dateAdded: editBlog ? editBlog.dateAdded : "",
+    owner: editBlog ? editBlog.owner : "",
+    uid: editBlog ? editBlog.uid : ""
   };
   let [state, dispatch] = useReducer(reducer, initialState);
 
@@ -32,24 +33,60 @@ const CreatePage = () => {
     setLoading(false)
     e.preventDefault();
     state.tags = selected;
-    submitImageToStorage(state.images)
-      .then(async (snapshot) => {
-        state.images = await snapshot;
+    if (editBlog) {
+      if (!editImg) {
         state.dateAdded = new Date().getTime();
-        state.owner = auth.currentUser.displayName;
-        state.uid = auth.currentUser.uid;
-        setTimeout(() => {
-          addDoc(collection(database, `userBlogs/${auth.currentUser.uid}/blogs`), state)
-            .then((snapshot) => {
-              setDoc(doc(database, `allBlogs/${snapshot.id}`), state)
-            })
-            .then(() => {
-              toast.success("Created a blog!");
-              setLoading(true);
-              navigate(`/`);
-            })
-        }, 3000);
-      })
+        updateDoc(doc(database, `allBlogs/${id}`), state)
+          .then(() => {
+            updateDoc(doc(database, `userBlogs/${state.uid}/blogs/${id}`), state)
+              .then(() => {
+                setLoading(true);
+                toast.success("Successfully edited!");
+                navigate(`/profile/${auth.currentUser.uid}`);
+              })
+          })
+      }
+      else {
+        submitImageToStorage(state.images)
+          .then(async (snapshot) => {
+            state.images = await snapshot;
+            state.dateAdded = new Date().getTime();
+            state.owner = auth.currentUser.displayName;
+            state.uid = auth.currentUser.uid;
+            setTimeout(() => {
+              updateDoc(doc(database, `allBlogs/${id}`), state)
+                .then(() => {
+                  updateDoc(doc(database, `userBlogs/${state.uid}/blogs/${id}`), state)
+                    .then(() => {
+                      setLoading(true);
+                      toast.success("Successfully edited!");
+                      navigate(`/profile/${auth.currentUser.uid}`);
+                    })
+                })
+            }, 2000);
+          })
+      }
+    }
+    else {
+      submitImageToStorage(state.images)
+        .then(async (snapshot) => {
+          state.images = await snapshot;
+          state.dateAdded = new Date().getTime();
+          state.owner = auth.currentUser.displayName;
+          state.uid = auth.currentUser.uid;
+          setTimeout(() => {
+            addDoc(collection(database, `userBlogs/${auth.currentUser.uid}/blogs`), state)
+              .then((snapshot) => {
+                setDoc(doc(database, `allBlogs/${snapshot.id}`), state)
+              })
+              .then(() => {
+                toast.success("Created a blog!");
+                setLoading(true);
+                navigate(`/`);
+              })
+          }, 3000);
+        })
+    }
   }
 
   const submitImageToStorage = async (files) => {
@@ -90,12 +127,12 @@ const CreatePage = () => {
   }
   return (
     <>
-      <h4 className='text-center'>Create Blog</h4>
+      <h4 className='text-center'>{editBlog?"Edit":"Create"} Blog</h4>
       <div className='container d-flex justify-content-center my-4'>
         <form id='createForm' style={{ width: "50%" }} onSubmit={submitFunc}>
 
           <div className="form-group mb-3">
-            <input type="text" className="form-control" required onChange={(e) => {
+            <input type="text" className="form-control" defaultValue={state.title} required onChange={(e) => {
               setValues(dispatch, "title", e.target.value);
             }} placeholder="Title" />
           </div>
@@ -126,7 +163,7 @@ const CreatePage = () => {
             </div>
           </div>
 
-          <select className="custom-select w-100" onChange={(e) => {
+          <select className="custom-select w-100" defaultValue={state.category} onChange={(e) => {
             setValues(dispatch, "category", e.target.value);
           }}>
             <option value="null">Please select categories</option>
@@ -138,11 +175,17 @@ const CreatePage = () => {
             <option value="business">Business</option>
           </select>
 
-          <textarea id='myTeaxtArea' onChange={(e) => {
+          <textarea id='myTeaxtArea' defaultValue={state.description} onChange={(e) => {
             setValues(dispatch, "description", e.target.value);
           }} style={{ width: "100%", height: "150px", maxHeight: "260px", minHeight: "100px", margin: "20px 0" }} placeholder='message'></textarea>
 
-          <input type="file" required multiple accept='.jpg, .png, .jpeg' onChange={(e) => {
+          {
+            editBlog ?
+              <small className='text-muted'><i>If you choose a new file or files, your previous files will disappear. If you don't, your previous files will load again!</i></small>
+              :
+              <></>
+          }
+          <input type="file" required={editBlog ? false : true} multiple accept='.jpg, .png, .jpeg' onChange={(e) => {
             let images = [];
             for (let file of e.target.files) {
               images.push({
@@ -152,9 +195,10 @@ const CreatePage = () => {
               });
             }
             setValues(dispatch, "images", images);
+            setEditImg(true);
           }} style={{ width: "100%", boxShadow: "3px 3px 1px #efefef" }} />
           <div className='d-flex justify-content-center'>
-            <button type="submit" className="btn btn-sm btn-warning text-light px-4 my-4">Create blog</button>
+            <button type="submit" className="btn btn-sm btn-warning text-light px-4 my-4">{editBlog?"Edit":"Create"} blog</button>
           </div>
         </form>
       </div>

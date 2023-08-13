@@ -7,6 +7,7 @@ import { Navigation, Pagination, Scrollbar, A11y, EffectFade, Autoplay, EffectCu
 import { NavLink } from 'react-router-dom';
 
 import "swiper/css/effect-coverflow";
+import Tags from './Tags';
 // import "swiper/components/navigation/navigation.scss";
 // import "swiper/components/pagination/pagination.scss";
 // import "swiper/components/effect-coverflow/effect-coverflow.scss";
@@ -82,10 +83,10 @@ const HomePage = () => {
               color: "#fff"
             }}>
               <NavLink to={`/details/${item.id}`}>
-                <div style={{ position: "relative",width: "700px", height: "400px", background: `url(${item.images[0].src}) center no-repeat`, backgroundSize: "cover" }}>
-                  <div style={{position: "absolute", left: "50%", bottom: "0", transform: "translateX(-50%)"}}>
-                    <small className='d-block text-light m-0 p-0' style={{fontSize: "20px", textShadow: "1px 1px 2px #000"}}>{item.title}</small>
-                    <small className='text-light' style={{fontSize: "12px"}}>by {item.owner}</small>
+                <div style={{ position: "relative", width: "700px", height: "400px", background: `url(${item.images[0].src}) center no-repeat`, backgroundSize: "cover" }}>
+                  <div style={{ position: "absolute", left: "50%", bottom: "0", transform: "translateX(-50%)" }}>
+                    <small className='d-block text-light m-0 p-0' style={{ fontSize: "20px", textShadow: "1px 1px 2px #000" }}>{item.title}</small>
+                    <small className='text-light' style={{ fontSize: "12px" }}>by {item.owner}</small>
                   </div>
                 </div>
               </NavLink>
@@ -93,9 +94,25 @@ const HomePage = () => {
           )
         })}
       </Swiper>
-      <p className='mt-4'>Daily Blogs</p>
-      <hr />
-      <DailyBlogs blogs={blogs} />
+      <div className="d-flex container">
+        <div style={{ width: "75%", margin: "0 20px" }}>
+          <p>Daily Blogs</p>
+          <hr />
+          <DailyBlogs blogs={blogs} />
+        </div>
+        <div style={{ width: "25%" }}>
+          <div>
+            <p>Tags</p>
+            <hr />
+            <Tags val={5}/>
+            <NavLink to={`/tags`} style={{ textDecoration: "none", margin: "10px", color: "darkblue", fontSize: "12px" }}>All Tags</NavLink>
+          </div>
+          <div className='mt-4'>
+            <p>Most Popular</p>
+            <hr />
+          </div>
+        </div>
+      </div>
     </div >
   )
 }
