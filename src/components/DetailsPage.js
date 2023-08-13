@@ -52,6 +52,7 @@ const DetailsPage = () => {
             <div className="container">
                 <p style={{ position: "absolute", zIndex: "100", fontSize: "34px", left: "50%", top: "320px", transform: "translateX(-50%)", color: "white" }}>{blog.title}</p>
                 <small className='d-block my-3'><b style={{ fontSize: "14px" }}>By <NavLink to={`/profile/${blog.uid}`} style={{textDecoration: "none", color: "ThreeDDarkShadow"}}>{blog.owner}</NavLink></b> - <Moment calendar style={{ color: "gray" }}>{blog.dateAdded}</Moment></small>
+                <span>{blog.likes}</span>
                 <hr />
                 <small className='d-block text-muted'>{blog.description}</small>
             </div>

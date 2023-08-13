@@ -1,4 +1,4 @@
-import { collection, getDocs, limit, query, where } from 'firebase/firestore';
+import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router';
 import database from '../firebase/firebaseConfig'
@@ -12,14 +12,17 @@ const BlogsOrderByTags = () => {
             .then((snapshot) => {
                 let blogs = [];
                 snapshot.forEach((blog) => {
-                    blogs.push(blog.data());
+                    blogs.push({
+                        ...blog.data(),
+                        id: blog.id
+                    });
                 })
                 setBlogs(blogs);
             })
     }, []);
     if (!blogs) {
         return (
-            <></>
+            <h5>loading...</h5>
         )
     }
     return (

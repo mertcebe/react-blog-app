@@ -23,7 +23,8 @@ const CreatePage = ({ editBlog, id }) => {
     images: editBlog ? editBlog.images : [],
     dateAdded: editBlog ? editBlog.dateAdded : "",
     owner: editBlog ? editBlog.owner : "",
-    uid: editBlog ? editBlog.uid : ""
+    uid: editBlog ? editBlog.uid : "",
+    likes: editBlog?editBlog.likes:0
   };
   let [state, dispatch] = useReducer(reducer, initialState);
 
