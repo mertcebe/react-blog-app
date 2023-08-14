@@ -20,8 +20,6 @@ const Blog = ({ blog }) => {
                     else {
                         setChecked(false)
                     }
-                })
-                .then(() => {
                     setLoading(true);
                 })
         }
@@ -42,7 +40,7 @@ const Blog = ({ blog }) => {
             console.log(blog.id)
             setDoc(doc(database, `userBlogs/${auth.currentUser.uid}/myLikes/${blog.id}`), {
                 ...blog,
-                likes: null
+                likes: true
             });
             getDoc(doc(database, `allBlogs/${blog.id}`))
                 .then((snapshot) => {

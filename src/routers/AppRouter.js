@@ -19,6 +19,7 @@ import EditPage from '../components/EditPage'
 import TagsPage from '../components/TagsPage'
 import BlogsOrderByTags from '../components/BlogsOrderByTags'
 import TagsLayout from '../components/TagsLayout'
+import MyLikesPage from '../components/MyLikesPage'
 
 const Navbar = () => {
     let { isAuthorized } = useAuthorized();
@@ -72,6 +73,7 @@ const AppRouter = () => {
                         <Route path='/create' element={<CreatePage />} />
                         <Route path='/about' element={<AboutPage />} />
                         <Route path='/profile/:uid' element={<ProfilePage />} />
+                        <Route path='/profile/:uid/likes' element={<MyLikesPage/>} />
                         <Route path='/edit/:id' element={<EditPage />} />
                         <Route path='/tags' element={<TagsLayout />}>
                             <Route index element={<TagsPage />} />

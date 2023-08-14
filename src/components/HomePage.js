@@ -8,6 +8,7 @@ import { NavLink } from 'react-router-dom';
 
 import "swiper/css/effect-coverflow";
 import Tags from './Tags';
+import MostPopularBlogs from './MostPopularBlogs';
 // import "swiper/components/navigation/navigation.scss";
 // import "swiper/components/pagination/pagination.scss";
 // import "swiper/components/effect-coverflow/effect-coverflow.scss";
@@ -110,6 +111,7 @@ const HomePage = () => {
           <div className='mt-4'>
             <p>Most Popular</p>
             <hr />
+            <MostPopularBlogs />
           </div>
         </div>
       </div>
