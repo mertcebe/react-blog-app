@@ -52,16 +52,23 @@ const ProfilePage = ({ likes, myLikesBlogs }) => {
           <p className="card-text">{user.email}</p>
           <small className='d-block'>{user.name} went online <Moment fromNow>{user.lastAccess}</Moment></small>
           {
-            likes?
-            <NavLink to={`/profile/${auth.currentUser.uid}`} style={{textDecoration: "none", backgroundColor: "lightyellow", color: "#000", display: "inline-block", padding: "2px 10px", margin: "10px 0", borderRadius: "5px"}}>My Blogs</NavLink>
-            :
-            <NavLink to={`/profile/${auth.currentUser.uid}/likes`} style={{textDecoration: "none", backgroundColor: "lightyellow", color: "#000", display: "inline-block", padding: "2px 10px", margin: "10px 0", borderRadius: "5px"}}>My Likes</NavLink>
+            auth.currentUser.uid === uid ?
+              <>
+                {
+                  likes ?
+                    <NavLink to={`/profile/${auth.currentUser.uid}`} style={{ textDecoration: "none", backgroundColor: "lightyellow", color: "#000", display: "inline-block", padding: "2px 10px", margin: "10px 0", borderRadius: "5px" }}>My Blogs</NavLink>
+                    :
+                    <NavLink to={`/profile/${auth.currentUser.uid}/likes`} style={{ textDecoration: "none", backgroundColor: "lightyellow", color: "#000", display: "inline-block", padding: "2px 10px", margin: "10px 0", borderRadius: "5px" }}>My Likes</NavLink>
+                }
+              </>
+              :
+              <></>
           }
         </div>
       </div>
       <div>
-        <h5 className='my-2'>{likes?"My Likes Blogs":"My Blogs"}</h5>
-        <DailyBlogs blogs={likes?myLikesBlogs:blogs} />
+        <h5 className='my-2'>{likes ? "My Likes Blogs" : "My Blogs"}</h5>
+        <DailyBlogs blogs={likes ? myLikesBlogs : blogs} />
         {/* <Swiper
           style={{ width: "300px", height: "400px" }}
           modules={[EffectCards]}

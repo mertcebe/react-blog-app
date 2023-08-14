@@ -20,6 +20,7 @@ import TagsPage from '../components/TagsPage'
 import BlogsOrderByTags from '../components/BlogsOrderByTags'
 import TagsLayout from '../components/TagsLayout'
 import MyLikesPage from '../components/MyLikesPage'
+import MostPopularPage from '../components/MostPopularPage'
 
 const Navbar = () => {
     let { isAuthorized } = useAuthorized();
@@ -62,6 +63,11 @@ const Navbar = () => {
 
 const AppRouter = () => {
     let { isAuthorized } = useAuthorized();
+    if(!isAuthorized){
+        return (
+            <h5>loading...</h5>
+        )
+    }
     return (
         <>
             <BrowserRouter>
@@ -79,6 +85,7 @@ const AppRouter = () => {
                             <Route index element={<TagsPage />} />
                             <Route path=':tag' element={<BlogsOrderByTags />} />
                         </Route>
+                        <Route path='/most-popular-blogs' element={<MostPopularPage />} />
                     </Route>
 
                     <Route element={<PublicRoute isAuthorized={isAuthorized} />}>

@@ -1,26 +1,26 @@
-import { collection, getDocs, orderBy, query, where } from 'firebase/firestore'
+import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
 import database from '../firebase/firebaseConfig'
 import DailyBlogs from './DailyBlogs';
 import Moment from 'react-moment';
 import { NavLink } from 'react-router-dom';
 
-const MostPopularBlogs = () => {
+const MostPopularBlogs = ({all}) => {
     let [blogs, setBlogs] = useState();
-    useEffect(() => {
-        const getMostPopularBlogs = () => {
-            let blogs = [];
-            getDocs(query(collection(database, `allBlogs`), orderBy('likes', 'desc'), where('likes', '!=', 0)))
-                .then((snapshot) => {
-                    snapshot.forEach((blog) => {
-                        blogs.push({
-                            ...blog.data(),
-                            id: blog.id
-                        });
+    const getMostPopularBlogs = () => {
+        let blogs = [];
+        getDocs(query(collection(database, `allBlogs`), orderBy('likes', 'desc'), where('likes', '!=', 0), all?limit():limit(5)))
+            .then((snapshot) => {
+                snapshot.forEach((blog) => {
+                    blogs.push({
+                        ...blog.data(),
+                        id: blog.id
                     });
-                    setBlogs(blogs);
-                })
-        }
+                });
+                setBlogs(blogs);
+            })
+    }
+    useEffect(() => {
         getMostPopularBlogs();
     })
     if (!blogs) {

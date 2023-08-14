@@ -57,7 +57,6 @@ const HomePage = () => {
   }
   return (
     <div>
-      <p>Trend Blogs</p>
       <Swiper
         pagination={{ clickable: true }}
         effect="coverflow"
@@ -105,13 +104,14 @@ const HomePage = () => {
           <div>
             <p>Tags</p>
             <hr />
-            <Tags val={5}/>
+            <Tags val={7}/>
             <NavLink to={`/tags`} style={{ textDecoration: "none", margin: "10px", color: "darkblue", fontSize: "12px" }}>All Tags</NavLink>
           </div>
           <div className='mt-4'>
             <p>Most Popular</p>
             <hr />
             <MostPopularBlogs />
+            <NavLink to={`/most-popular-blogs`} style={{ textDecoration: "none", margin: "10px", color: "darkblue", fontSize: "12px" }}>All Most Popular Blogs</NavLink>
           </div>
         </div>
       </div>
